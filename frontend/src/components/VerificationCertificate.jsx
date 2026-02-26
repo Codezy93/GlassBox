@@ -30,9 +30,7 @@ export default function VerificationCertificate({ certification }) {
             </div>
 
             <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
-                💡 <strong>PHD Note:</strong> This certificate is a mathematical guarantee that a valid
-                recourse path exists within the specified stability radius. It is computed via first-order
-                logic satisfaction checking on the model's locally-linearized decision boundary.
+                💡 <strong>Method note:</strong> This certificate comes from an SMT satisfiability check over local action bounds using a model-fitted local surrogate.
             </div>
         </div>
     );

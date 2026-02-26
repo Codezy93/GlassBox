@@ -21,9 +21,6 @@ export default function LocalImportance({ importance }) {
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                 {entries.map((e) => {
                     const pct = (Math.abs(e.val) / maxVal) * 100;
-                    const isPositive = e.val < 0; // In our model, higher SHAP on class 1 (default) is bad. 
-                    // Wait, KernelExplainer might return values for class 1 by default. 
-                    // If val > 0, it pushes towards Default (bad). If val < 0, it pushes towards Approved (good).
 
                     return (
                         <div key={e.name} style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>

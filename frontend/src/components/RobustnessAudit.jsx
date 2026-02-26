@@ -23,17 +23,33 @@ export default function RobustnessAudit({ inputData }) {
     if (error) return <div className="error-msg">⚠ {error}</div>;
     if (!data) return null;
 
-    const getScoreColor = (score) => {
-        if (score > 0.9) return "var(--emerald)";
-        if (score > 0.7) return "var(--amber)";
-        return "var(--rose)";
+    const getScoreBadgeStyle = (score) => {
+        if (score > 0.9) {
+            return {
+                background: "var(--emerald)",
+                color: "#042016",
+                border: "1px solid rgba(74, 222, 128, 0.45)",
+            };
+        }
+        if (score > 0.7) {
+            return {
+                background: "var(--amber)",
+                color: "#2d1b00",
+                border: "1px solid rgba(245, 158, 11, 0.5)",
+            };
+        }
+        return {
+            background: "var(--rose)",
+            color: "#fff",
+            border: "1px solid rgba(251, 113, 133, 0.5)",
+        };
     };
 
     return (
         <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                 <h2>🛡️ Adversarial Robustness</h2>
-                <div className="badge ok" style={{ background: getScoreColor(data.robustness_score), flexShrink: 0, whiteSpace: "nowrap" }}>
+                <div className="badge" style={{ ...getScoreBadgeStyle(data.robustness_score), flexShrink: 0, whiteSpace: "nowrap" }}>
                     {(data.robustness_score * 100).toFixed(1)}% Stable
                 </div>
             </div>
@@ -77,7 +93,7 @@ export default function RobustnessAudit({ inputData }) {
                 color: "var(--text-secondary)",
                 border: "1px solid rgba(16, 185, 129, 0.1)"
             }}>
-                💡 <strong>PHD Note:</strong> This audit uses Monte Carlo sampling to estimate the local Lipschitz constant. It identifies "Adversarial Vulnerabilities" where a tiny change in a sensitive feature triples the default probability.
+                💡 <strong>Method note:</strong> This audit uses local Monte Carlo perturbations to estimate stability and rank the most sensitivity-driving features.
             </div>
         </div>
     );

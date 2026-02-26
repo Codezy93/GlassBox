@@ -16,7 +16,7 @@ export default function StabilityPrivacyAudit() {
             })
             .catch((err) => {
                 console.error(err);
-                setError("Audit failed. Ensure backend is running Phase 12.");
+                setError("Audit failed. Ensure the backend is running.");
                 setLoading(false);
             });
     }, []);
@@ -80,7 +80,7 @@ export default function StabilityPrivacyAudit() {
                     color: "var(--text-secondary)",
                     border: "1px solid var(--border)"
                 }}>
-                    💡 <strong>Privacy Guarantee:</strong> This model was retrained using **Opacus** with gradient clipping and noise injection. An epsilon of 1.0 represents "Strong Privacy."
+                    💡 <strong>Method note:</strong> Privacy values are reported from the configured DP-SGD budget for this model version.
                 </div>
             </div>
         </div>

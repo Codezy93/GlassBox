@@ -5,14 +5,26 @@ import { getManifoldProjection } from "../api";
 export default function ManifoldProjector({ inputData }) {
     const svgRef = useRef(null);
     const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (inputData) {
-            getManifoldProjection(inputData)
-                .then(setData)
-                .finally(() => setLoading(false));
+        if (!inputData) {
+            setLoading(false);
+            setData(null);
+            setError(null);
+            return;
         }
+
+        setLoading(true);
+        setError(null);
+        getManifoldProjection(inputData)
+            .then(setData)
+            .catch((err) => {
+                console.error(err);
+                setError("Failed to compute latent projection for the current profile.");
+            })
+            .finally(() => setLoading(false));
     }, [inputData]);
 
     useEffect(() => {
@@ -81,7 +93,17 @@ export default function ManifoldProjector({ inputData }) {
 
     }, [data]);
 
+    if (!inputData) {
+        return (
+            <div className="card empty">
+                <div className="big-icon">🧭</div>
+                <p>Run an individual analysis first to project a profile into latent space.</p>
+            </div>
+        );
+    }
+
     if (loading) return <div className="card empty"><div className="spin"></div><p>Projecting to Latent Manifold…</p></div>;
+    if (error) return <div className="error-msg">⚠ {error}</div>;
 
     return (
         <div className="card">

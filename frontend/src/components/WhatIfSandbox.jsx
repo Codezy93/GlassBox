@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { predict } from "../api";
 
 const NAMES = {
@@ -24,7 +24,10 @@ export default function WhatIfSandbox({ inputData, baseProbability, features }) 
     const [prob, setProb] = useState(null);
     const [busy, setBusy] = useState(false);
 
-    const mutable = features ? features.filter((f) => !f.immutable) : [];
+    const mutable = useMemo(
+        () => (features ? features.filter((f) => !f.immutable) : []),
+        [features]
+    );
 
     useEffect(() => {
         if (inputData) {
@@ -33,7 +36,7 @@ export default function WhatIfSandbox({ inputData, baseProbability, features }) 
             setSliders(init);
             setProb(baseProbability);
         }
-    }, [inputData]);
+    }, [inputData, baseProbability, mutable]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedPredict = useCallback(

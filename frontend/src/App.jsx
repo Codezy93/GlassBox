@@ -63,8 +63,8 @@ export default function App() {
         <div className="header-icon">🔬</div>
         <h1>GlassBox <span style={{ fontSize: "1rem", opacity: 0.6, verticalAlign: "middle" }}>Neural-Causal</span></h1>
         <p>
-          State-of-the-art AI Research: certified recourse, latent manifolds,
-          performative stability, and differentially private auditing.
+          Decision intelligence with actionable recourse, calibrated uncertainty,
+          causal structure, and operational risk audits.
         </p>
       </header>
 
@@ -133,7 +133,7 @@ export default function App() {
               {loading && (
                 <div className="card empty">
                   <div className="big-icon"><span className="spin" style={{ width: 32, height: 32, borderWidth: 3, display: 'inline-block' }}></span></div>
-                  <p>Solving SMT constraints and training latent geodesics…<br />Verified AI transparency in progress.</p>
+                  <p>Running model analysis and generating recourse options…<br />Please wait a moment.</p>
                 </div>
               )}
 

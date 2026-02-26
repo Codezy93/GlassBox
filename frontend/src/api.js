@@ -1,4 +1,6 @@
-const API_BASE = "http://localhost:3100";
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  `${window.location.protocol}//${window.location.hostname}:3100`;
 
 export async function getFeatures() {
   console.log("[API] GET /features …");
