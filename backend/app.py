@@ -55,10 +55,24 @@ app = FastAPI(
     version="1.0.0",
 )
 
+DEFAULT_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+]
+
+origins_env = os.getenv("GLASSBOX_ALLOWED_ORIGINS")
+allowed_origins = (
+    [o.strip() for o in origins_env.split(",") if o.strip()]
+    if origins_env
+    else DEFAULT_ALLOWED_ORIGINS
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for debugging
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials="*" not in allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -98,7 +112,6 @@ def get_interpret_engine() -> InterpretabilityEngine:
         _interpret_engine = InterpretabilityEngine(
             model_path=EBM_PATH,
             data_path=SPLITS_PATH,
-            scaler_path=SCALER_PATH
         )
         logger.success("✅ InterpretabilityEngine ready.")
     return _interpret_engine

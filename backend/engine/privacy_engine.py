@@ -1,13 +1,8 @@
-import torch
-from opacus import PrivacyEngine as OpacusPrivacyEngine
 from loguru import logger
-import joblib
-import os
 
 class PrivacyAuditEngine:
     def __init__(self, model_path=None):
-        logger.info("Initializing PrivacyAuditEngine (DP-SGD Auditing)")
-        # In a real PHD project, we would load the epsilon/delta from training metadata
+        logger.info("Initializing PrivacyAuditEngine (DP-SGD budget audit)")
         self.epsilon = 1.0
         self.delta = 1e-5
         self.max_grad_norm = 1.0

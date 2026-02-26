@@ -1,16 +1,14 @@
-import os
 import joblib
 import pandas as pd
 import numpy as np
 import shap
 from loguru import logger
-from data.preprocess import CONTINUOUS_FEATURES, ALL_FEATURES
+from data.preprocess import ALL_FEATURES
 
 class InterpretabilityEngine:
-    def __init__(self, model_path, data_path, scaler_path=None):
+    def __init__(self, model_path, data_path):
         logger.info(f"Initializing InterpretabilityEngine with {model_path}")
         self.model = joblib.load(model_path)
-        self.scaler = joblib.load(scaler_path) if scaler_path and os.path.exists(scaler_path) else None
         
         # Load background data for SHAP
         try:
@@ -20,13 +18,7 @@ class InterpretabilityEngine:
             
             # Using a small subset for background data to keep SHAP fast
             background_df = self.X_train.sample(min(100, len(self.X_train)))
-            if self.scaler:
-                X_cont_scaled = self.scaler.transform(background_df[CONTINUOUS_FEATURES])
-                background_scaled = background_df.copy()
-                background_scaled[CONTINUOUS_FEATURES] = X_cont_scaled
-                background = background_scaled.values 
-            else:
-                background = background_df.values
+            background = background_df.values
                 
             self.explainer = shap.KernelExplainer(self.model.predict_proba, background)
             logger.info("SHAP KernelExplainer initialized successfully")
@@ -50,16 +42,8 @@ class InterpretabilityEngine:
         if self.explainer is None:
             return {}
             
-        # Scale only continuous features
         df = pd.DataFrame([input_data])[ALL_FEATURES]
-        if self.scaler:
-            X_cont_scaled = self.scaler.transform(df[CONTINUOUS_FEATURES])
-            df_scaled = df.copy()
-            df_scaled[CONTINUOUS_FEATURES] = X_cont_scaled
-        else:
-            df_scaled = df
-            
-        shap_values = self.explainer.shap_values(df_scaled)
+        shap_values = self.explainer.shap_values(df.values)
         
         # If binary classification, shap_values might be a list (one per class)
         # result is typically [N_samples, N_features]
@@ -92,14 +76,7 @@ class InterpretabilityEngine:
         logger.info("Calculating global importance via SHAP...")
         try:
             sample_df = self.X_train.sample(min(20, len(self.X_train)))
-            
-            if self.scaler:
-                X_cont_scaled = self.scaler.transform(sample_df[CONTINUOUS_FEATURES])
-                sample_scaled = sample_df.copy()
-                sample_scaled[CONTINUOUS_FEATURES] = X_cont_scaled
-                sample_X = sample_scaled.values
-            else:
-                sample_X = sample_df.values
+            sample_X = sample_df.values
                 
             shap_values = self.explainer.shap_values(sample_X)
             

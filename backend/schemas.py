@@ -86,7 +86,7 @@ class Counterfactual(BaseModel):
 
 
 class ExplanationResponse(BaseModel):
-    """Response from the /explain endpoint with Research certification."""
+    """Response from the /explain endpoint with recourse certification."""
     prediction: int
     probability_default: float
     probability_no_default: float

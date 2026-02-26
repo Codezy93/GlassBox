@@ -65,7 +65,6 @@ class CounterfactualEngine:
     def __init__(self):
         # Load EBM (used for counterfactuals — fast inference, interpretable)
         self.ebm = joblib.load(os.path.join(SAVED_DIR, "ebm_model.pkl"))
-        self.scaler = joblib.load(os.path.join(SAVED_DIR, "scaler.pkl"))
 
         # Load raw training data for DiCE data object
         raw = joblib.load(os.path.join(SAVED_DIR, "raw_splits.pkl"))
@@ -97,7 +96,7 @@ class CounterfactualEngine:
         self,
         input_data: dict,
         num_cfs: int = 4,
-        desired_class: int = 0,  # 0 = no default (approved)
+        desired_class: int | str = "opposite",
     ) -> list[dict]:
         """
         Generate diverse counterfactual explanations.
@@ -115,7 +114,7 @@ class CounterfactualEngine:
             cf_result = self.explainer.generate_counterfactuals(
                 input_df,
                 total_CFs=num_cfs,
-                desired_class="opposite",
+                desired_class=desired_class,
                 features_to_vary=MUTABLE_FEATURES,
                 permitted_range=PERMITTED_RANGES,
             )
@@ -130,7 +129,7 @@ class CounterfactualEngine:
                 cf_result = self.explainer.generate_counterfactuals(
                     input_df,
                     total_CFs=num_cfs,
-                    desired_class="opposite",
+                    desired_class=desired_class,
                     features_to_vary=MUTABLE_FEATURES,
                 )
                 counterfactuals = self._parse_results(cf_result, input_data)
@@ -164,13 +163,7 @@ class CounterfactualEngine:
                 # Get prediction probability for this counterfactual
                 cf_feats = {f: row[f] for f in ALL_FEATURES}
                 cf_input = pd.DataFrame([cf_feats])[ALL_FEATURES]
-                
-                # IMPORTANT: Scale for EBM prediction
-                cf_input_scaled = cf_input.copy()
-                X_cont_scaled = self.scaler.transform(cf_input[CONTINUOUS_FEATURES])
-                cf_input_scaled[CONTINUOUS_FEATURES] = X_cont_scaled
-                
-                cf_proba = self.ebm.predict_proba(cf_input_scaled)[0]
+                cf_proba = self.ebm.predict_proba(cf_input)[0]
 
                 counterfactuals.append(
                     {
@@ -184,16 +177,11 @@ class CounterfactualEngine:
         return counterfactuals
 
     def predict(self, input_data: dict) -> dict:
-        """Quick prediction using the EBM (with scaling)."""
+        """Quick prediction using the EBM on raw feature space."""
         input_df = pd.DataFrame([input_data])[ALL_FEATURES]
-        
-        # Scale continuous features
-        input_df_scaled = input_df.copy()
-        X_cont_scaled = self.scaler.transform(input_df[CONTINUOUS_FEATURES])
-        input_df_scaled[CONTINUOUS_FEATURES] = X_cont_scaled
-        
-        proba = self.ebm.predict_proba(input_df_scaled)[0]
-        pred = int(self.ebm.predict(input_df_scaled)[0])
+
+        proba = self.ebm.predict_proba(input_df)[0]
+        pred = int(self.ebm.predict(input_df)[0])
         return {
             "prediction": pred,
             "probability_default": float(proba[1]),

@@ -68,7 +68,10 @@ def load_raw() -> pd.DataFrame:
     """Load the raw CSV and rename columns."""
     csv_path = os.path.join(DATA_DIR, "credit_default.csv")
     if not os.path.exists(csv_path):
-        from backend.data.download_dataset import download
+        try:
+            from data.download_dataset import download
+        except ModuleNotFoundError:
+            from backend.data.download_dataset import download
         download()
 
     df = pd.read_csv(csv_path)
